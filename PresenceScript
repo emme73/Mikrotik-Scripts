@@ -1,0 +1,24 @@
+# Put in Lease Script under DHCP Server Instance config 
+
+:global d "[PRESENCE]"
+:global arr {
+   "AA:BB:CC:DD:EE:FF"="homeName1";
+   "00:11:22:33:44:55"="hostName2"
+   }
+:global sV false
+
+:global leaseBound
+:global leaseActMAC
+
+# :log info "$d Script Start!";
+
+:foreach mac,host in=$arr do={
+#  :log info "$d Loop Start ==> $mac = $host";
+  :if ($leaseActMAC = $mac) do={
+      :log info "$d found mac $mac ==A> $host lease ==> $leaseBound";
+      :if ($leaseBound = 1) do={ :set sV true } else={ :set sV false }
+      /tool fetch mode=http url="https://x.y.z.w:1880/presence?host=$host&logged=$sV" dst-path=http_response.txt;
+      :local httpResponse [/file get http_response.txt contents];
+      :log info "$d $httpResponse";
+   } 
+}
