@@ -1,0 +1,27 @@
+#SETUP Variabili
+# Inserire nell'array qui' sotto i mac address con i nomi dei client
+local arrMac {
+   "11:22:33:44:55:66"="host1";
+   "66:55:44:33:22:11"="host2";
+  }
+
+local debug false;
+local mqttServer "{serverInstance}";
+
+# NON CAMBIARE NULLA SOTTO QUESTA RIGA
+local d "[dhcp Presence Script] ";
+local topicRoot "clients/presence/";
+global leaseBound;
+global leaseActMAC;
+
+if ($debug = true) do={ :log info "$d ==> script avviato" }
+
+foreach mac,host in=$arrMac do={
+   if ($debug = true) do={ :log info "$d ==> valutazione $mac / $leaseActMAC" }
+   if ($mac = $leaseActMAC) do={
+      if ($debug = true) do={ :log info "$d ==> host $host valore $leaseBound" }
+         /iot/mqtt/publish broker=$mqttServer topic="$topicRoot$host" message="$leaseBound";
+      }
+   }
+}
+
